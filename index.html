@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Card</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: normal;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #FD5108;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .card {
+            background: white;
+            border-radius: 0;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .org-name {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 24px;
+            color: #FD5108;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #FD5108;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            font-weight: bold;
+        }
+        .name-en {
+            font-family: Georgia, 'Times New Roman', serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000;
+        }
+        .name-local {
+            font-size: 18px;
+            color: #A1A8B3;
+            margin-top: 5px;
+        }
+        .title {
+            color: #000000;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+        .bu {
+            color: #A1A8B3;
+            font-size: 14px;
+            margin-top: 3px;
+        }
+        .info {
+            margin: 25px 0;
+        }
+        .info-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #DFE3E6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .icon {
+            width: 24px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .info-content {
+            flex: 1;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #A1A8B3;
+            text-transform: uppercase;
+        }
+        .info-value {
+            color: #000000;
+            margin-top: 2px;
+        }
+        .info-value a {
+            color: #000000;
+            text-decoration: none;
+        }
+        .info-value a:hover {
+            text-decoration: underline;
+        }
+        .address {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .phones {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .phone-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .phone-type {
+            font-size: 11px;
+            background: #F5F7F8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #A1A8B3;
+        }
+        .save-btn {
+            background-color: #FD5108;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 0;
+            font-size: 18px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: background-color 0.2s;
+            font-weight: 600;
+        }
+        .save-btn:hover {
+            background-color: #E5490A;
+        }
+        .save-btn:active {
+            background-color: #CC4108;
+        }
+        .error {
+            text-align: center;
+            padding: 20px;
+        }
+        .error h2 {
+            color: #000000;
+            font-family: Georgia, 'Times New Roman', serif;
+        }
+        .error code {
+            display: block;
+            background: #F5F7F8;
+            padding: 15px;
+            border-radius: 0;
+            margin-top: 15px;
+            font-size: 12px;
+            text-align: left;
+            overflow-x: auto;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="contactCard">
+        <div style="text-align: center; padding: 40px;">
+            <p>Loading contact...</p>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        function getParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                // Names
+                fn: params.get('fn') || '',             // First Name (English)
+                ln: params.get('ln') || '',             // Last Name (English)
+                tfn: params.get('tfn') || '',           // Thai First Name
+                tln: params.get('tln') || '',           // Thai Last Name
+                nn: params.get('nn') || '',             // Native Name prefix
+                
+                // Organization
+                org: params.get('org') || '',           // Organization
+                bu: params.get('bu') || '',             // Business Unit
+                title: params.get('title') || '',       // Job Title
+                
+                // Contact
+                email: params.get('email') || '',       // Email
+                tel: params.get('tel') || '',           // Main Tel
+                mobile: params.get('mobile') || '',     // Mobile
+                tel2: params.get('tel2') || '',         // Other Tel
+                
+                // Address
+                company: params.get('company') || '',   // Company name in address
+                floor: params.get('floor') || '',       // Floor
+                street: params.get('street') || '',     // Street
+                district: params.get('district') || '', // District
+                city: params.get('city') || '',         // City
+                postal: params.get('postal') || '',     // Postal Code
+                country: params.get('country') || ''    // Country
+            };
+        }
+
+        // Generate vCard string - EXACT FORMAT
+        function generateVCard(data) {
+            // Build mobile tel line
+            let mobileTelLine = '';
+            if (data.mobile) {
+                mobileTelLine = `TEL;type=CELL:${data.mobile}`;
+            }
+            
+            // Build other tel line
+            let otherTelLine = '';
+            if (data.tel2) {
+                otherTelLine = `TEL;type=WORK:${data.tel2}`;
+            }
+            
+            // Build address string
+            const addrParts = [
+                data.nn,
+                data.tfn,
+                data.tln,
+                data.company,
+                data.floor,
+                data.street,
+                data.district
+            ].filter(p => p).join(' ');
+            
+            // Build vCard lines
+            let lines = [
+                'BEGIN:VCARD',
+                'VERSION:3.0',
+                'PRODID:-//Apple Inc.//iPhone OS 17.4.1//EN',
+                `N:${data.ln};${data.org};${data.fn};;`,
+                `FN:${data.org} ${data.fn} ${data.ln}`,
+                `ORG:${data.org};${data.bu};`,
+                `TITLE:${data.title}`,
+                `EMAIL;type=INTERNET;type=pref:${data.email}`,
+                `TEL:${data.tel}`
+            ];
+            
+            // Add mobile if exists
+            if (mobileTelLine) {
+                lines.push(mobileTelLine);
+            }
+            
+            // Add other tel if exists
+            if (otherTelLine) {
+                lines.push(otherTelLine);
+            }
+            
+            // Add address
+            lines.push(`ADR;type=WORK;type=pref:;;${addrParts};${data.city};;${data.postal};${data.country}`);
+            lines.push('END:VCARD');
+            
+            return lines.join('\r\n');
+        }
+
+        // Download vCard
+        function downloadVCard() {
+            const data = getParams();
+            const vcard = generateVCard(data);
+            const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            
+            const filename = `${data.org}_${data.fn}_${data.ln}`.replace(/\s+/g, '_').replace(/^_+|_+$/g, '');
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${filename || 'contact'}.vcf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // Render contact card UI
+        function renderCard(data) {
+            const card = document.getElementById('contactCard');
+            
+            // Validate required fields
+            if (!data.fn && !data.ln) {
+                card.innerHTML = `
+                    <div class="error">
+                        <h2>Missing Contact Data</h2>
+                        <p>Please provide contact information in the URL parameters.</p>
+                        <code>
+Required:<br>
+- fn = First Name (English)<br>
+- ln = Last Name (English)<br><br>
+Optional:<br>
+- tfn = Thai First Name<br>
+- tln = Thai Last Name<br>
+- nn = Native Name prefix<br>
+- org = Organization<br>
+- bu = Business Unit<br>
+- title = Job Title<br>
+- email = Email<br>
+- tel = Office Tel<br>
+- mobile = Mobile Tel<br>
+- tel2 = Other Tel<br>
+- company = Company Name<br>
+- floor = Floor<br>
+- street = Street<br>
+- district = District<br>
+- city = City<br>
+- postal = Postal Code<br>
+- country = Country
+                        </code>
+                    </div>
+                `;
+                return;
+            }
+
+            // Build display values
+            const fullNameEn = `${data.fn} ${data.ln}`.trim();
+            const fullNameLocal = [data.nn, data.tfn, data.tln].filter(n => n).join(' ');
+            const initials = `${(data.fn[0] || '')}${(data.ln[0] || '')}`.toUpperCase();
+            
+            // Build phones HTML
+            let phonesHtml = '';
+            if (data.tel) {
+                phonesHtml += `
+                    <div class="phone-item">
+                        <span class="phone-type">Office</span>
+                        <a href="tel:${data.tel}">${data.tel}</a>
+                    </div>`;
+            }
+            if (data.mobile) {
+                phonesHtml += `
+                    <div class="phone-item">
+                        <span class="phone-type">Mobile</span>
+                        <a href="tel:${data.mobile}">${data.mobile}</a>
+                    </div>`;
+            }
+            if (data.tel2) {
+                phonesHtml += `
+                    <div class="phone-item">
+                        <span class="phone-type">Other</span>
+                        <a href="tel:${data.tel2}">${data.tel2}</a>
+                    </div>`;
+            }
+
+            // Build address lines
+            const addressLines = [
+                data.company,
+                data.floor,
+                data.street,
+                data.district,
+                [data.city, data.postal].filter(x => x).join(' '),
+                data.country
+            ].filter(l => l);
+
+            // Build info sections
+            let infoHtml = '';
+            
+            if (data.email) {
+                infoHtml += `
+                    <div class="info-item">
+                        <span class="icon">✉</span>
+                        <div class="info-content">
+                            <div class="info-label">Email</div>
+                            <div class="info-value"><a href="mailto:${data.email}">${data.email}</a></div>
+                        </div>
+                    </div>`;
+            }
+            
+            if (phonesHtml) {
+                infoHtml += `
+                    <div class="info-item">
+                        <span class="icon">☎</span>
+                        <div class="info-content">
+                            <div class="info-label">Phone</div>
+                            <div class="info-value phones">${phonesHtml}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            if (data.org || data.bu) {
+                infoHtml += `
+                    <div class="info-item">
+                        <span class="icon">◼</span>
+                        <div class="info-content">
+                            <div class="info-label">Organization</div>
+                            <div class="info-value">${[data.org, data.bu].filter(x => x).join(' - ')}</div>
+                        </div>
+                    </div>`;
+            }
+            
+            if (addressLines.length > 0) {
+                infoHtml += `
+                    <div class="info-item">
+                        <span class="icon">⌂</span>
+                        <div class="info-content">
+                            <div class="info-label">Address</div>
+                            <div class="info-value address">${addressLines.join('<br>')}</div>
+                        </div>
+                    </div>`;
+            }
+
+            // Render card
+            card.innerHTML = `
+                <div class="header">
+                    ${data.org ? `<div class="org-name">${data.org}</div>` : ''}
+                    <div class="avatar">${initials || '?'}</div>
+                    <div class="name-en">${fullNameEn}</div>
+                    ${fullNameLocal ? `<div class="name-local">${fullNameLocal}</div>` : ''}
+                    ${data.title ? `<div class="title">${data.title}</div>` : ''}
+                    ${data.bu ? `<div class="bu">${data.bu}</div>` : ''}
+                </div>
+                
+                <div class="info">
+                    ${infoHtml}
+                </div>
+                
+                <button class="save-btn" onclick="downloadVCard()">
+                    Save to Contacts
+                </button>
+            `;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCard(getParams());
+        });
+    </script>
+</body>
+</html>
