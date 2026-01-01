@@ -92,6 +92,8 @@
         }
         .info-content {
             flex: 1;
+            /* CRITICAL: Allows the container to shrink so text can wrap */
+            min-width: 0; 
         }
         .info-label {
             font-size: 12px;
@@ -101,6 +103,7 @@
         .info-value {
             color: #000000;
             margin-top: 2px;
+            /* Force long emails to break */
             word-break: break-all;
         }
         .info-value a {
@@ -140,7 +143,7 @@
             font-size: 18px;
             cursor: pointer;
             width: 100%;
-            /* UPDATED MARGINS FOR TOP POSITION */
+            /* Button Positioned at Top */
             margin-top: 0;
             margin-bottom: 25px; 
             transition: background-color 0.2s;
