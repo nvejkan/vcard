@@ -139,7 +139,9 @@
             font-size: 18px;
             cursor: pointer;
             width: 100%;
-            margin-top: 20px;
+            /* UPDATED MARGINS FOR TOP POSITION */
+            margin-top: 0;
+            margin-bottom: 25px; 
             transition: background-color 0.2s;
             font-weight: 600;
         }
@@ -408,8 +410,12 @@ Optional:<br>
                     </div>`;
             }
 
-            // Render card
+            // Render card - BUTTON IS NOW AT THE TOP
             card.innerHTML = `
+                <button class="save-btn" onclick="downloadVCard()">
+                    Save to Contacts
+                </button>
+
                 <div class="header">
                     ${data.org ? `<div class="org-name">${data.org}</div>` : ''}
                     <div class="avatar">${initials || '?'}</div>
@@ -422,10 +428,6 @@ Optional:<br>
                 <div class="info">
                     ${infoHtml}
                 </div>
-                
-                <button class="save-btn" onclick="downloadVCard()">
-                    Save to Contacts
-                </button>
             `;
         }
 
